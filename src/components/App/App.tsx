@@ -1,19 +1,24 @@
 import NoteList from "../NoteList/NoteList";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import css from "./App.module.css";
-import { fetchNotes } from "../../services/noteService";
+import { createNote, fetchNotes } from "../../services/noteService";
 import { useState } from "react";
 import SearchBox from "../SearchBox/SearchBox";
 import { useDebouncedCallback } from "use-debounce";
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
+import type { NoteTag } from "../../types/note";
 
 function App() {
   //States
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  // const [noteId, setNoteId] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
 
   const openModal = () => setIsOpenModal(true);
@@ -35,6 +40,18 @@ function App() {
   }, 300);
 
   const totalPages = data?.totalPages ?? 0;
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (createdNote: NoteTag) => createNote(createdNote),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
+  });
+
+  const handleOnCreateNote = (value: NoteTag) => {
+    mutation.mutate(value);
+  };
 
   //Markup
   return (
@@ -53,7 +70,10 @@ function App() {
         </button>
         {isOpenModal && (
           <Modal>
-            <NoteForm closeModal={closeModal} />
+            <NoteForm
+              closeModal={closeModal}
+              onCreateNote={(values) => handleOnCreateNote(values)}
+            />
           </Modal>
         )}
       </header>

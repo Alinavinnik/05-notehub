@@ -1,28 +1,24 @@
 import { useId } from "react";
 import css from "./NoteForm.module.css";
 import { Field, Form, Formik, type FormikHelpers } from "formik";
+import type { NoteTag } from "../../types/note";
 
-type TypeTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
-
-interface NoteFormValues {
-  title: string;
-  content: string;
-  tag: TypeTag;
-}
-
-const initialValues: NoteFormValues = {
+const initialValues: NoteTag = {
   title: "",
   content: "",
   tag: "Todo",
 };
 
-export default function NoteForm({ closeModal }: { closeModal: () => void }) {
+interface NoteFormProps {
+  closeModal: () => void;
+  onCreateNote: (note: NoteTag) => void;
+}
+
+export default function NoteForm({ closeModal, onCreateNote }: NoteFormProps) {
   const fieldId = useId();
 
-  const handleSubmit = (
-    values: NoteFormValues,
-    actions: FormikHelpers<NoteFormValues>,
-  ) => {
+  const handleSubmit = (values: NoteTag, actions: FormikHelpers<NoteTag>) => {
+    onCreateNote(values);
     actions.resetForm();
   };
 
