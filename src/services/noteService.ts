@@ -19,7 +19,6 @@ export async function fetchNotes(search: string, page: number) {
   });
   return data;
 }
-console.log(import.meta.env.VITE_NOTEHUB_TOKEN);
 
 //Post request
 export async function createNote(newNote: NoteTag) {

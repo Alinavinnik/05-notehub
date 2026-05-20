@@ -6,11 +6,18 @@ import { useState } from "react";
 import SearchBox from "../SearchBox/SearchBox";
 import { useDebouncedCallback } from "use-debounce";
 import Pagination from "../Pagination/Pagination";
+import Modal from "../Modal/Modal";
+import NoteForm from "../NoteForm/NoteForm";
 
 function App() {
+  //States
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   // const [noteId, setNoteId] = useState("");
+  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const openModal = () => setIsOpenModal(true);
+  const closeModal = () => setIsOpenModal(false);
 
   const { data, isSuccess } = useQuery({
     queryKey: ["notes", searchQuery, page],
@@ -41,7 +48,14 @@ function App() {
             onPageChange={setPage}
           />
         )}
-        {/* Кнопка створення нотатки */}
+        <button className={css.button} onClick={openModal}>
+          Create note +
+        </button>
+        {isOpenModal && (
+          <Modal>
+            <NoteForm closeModal={closeModal} />
+          </Modal>
+        )}
       </header>
       {data && data.notes.length > 0 && (
         <NoteList onClick={onClickDelete} notes={data.notes} />
