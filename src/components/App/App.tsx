@@ -13,7 +13,7 @@ import { useDebouncedCallback } from "use-debounce";
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
-import type { NoteTag } from "../../types/note";
+import type { NewNote } from "../../types/note";
 import { error, success } from "../../notification/notification";
 import Loader from "../Loader/Loader";
 
@@ -37,39 +37,10 @@ function App() {
 
   const totalPages = data?.totalPages ?? 0;
 
-  //To delete Note
-  const onClickDelete = (id: string) => {
-    mutationDelete.mutate(id);
-  };
-
-  const mutationDelete = useMutation({
-    mutationFn: (noteId: string) => deleteNote(noteId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["notes"] });
-      success("A note has been deleted!");
-    },
-    onError: () => error(),
-  });
-  //
-
   const onChange = useDebouncedCallback((newSearchValue: string) => {
     setSearchQuery(newSearchValue);
+    setPage(1);
   }, 300);
-
-  //To create Note
-  const mutation = useMutation({
-    mutationFn: (createdNote: NoteTag) => createNote(createdNote),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["notes"] });
-      closeModal();
-      success("A note has been created!");
-    },
-    onError: () => error(),
-  });
-
-  const handleOnCreateNote = (value: NoteTag) => {
-    mutation.mutate(value);
-  };
 
   //Markup
   return (
@@ -89,11 +60,7 @@ function App() {
 
         {isOpenModal && (
           <Modal onClose={closeModal}>
-            <NoteForm
-              closeModal={closeModal}
-              onCreateNote={(values) => handleOnCreateNote(values)}
-              isDisable={mutation.isPending}
-            />
+            <NoteForm closeModal={closeModal} />
           </Modal>
         )}
       </header>
@@ -103,9 +70,7 @@ function App() {
         </p>
       )}
       {isLoading && <Loader />}
-      {data && data.notes.length > 0 && (
-        <NoteList onClick={(id) => onClickDelete(id)} notes={data.notes} />
-      )}
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
     </div>
   );
 }
