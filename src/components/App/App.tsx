@@ -88,7 +88,7 @@ function App() {
         </button>
 
         {isOpenModal && (
-          <Modal>
+          <Modal onClose={closeModal}>
             <NoteForm
               closeModal={closeModal}
               onCreateNote={(values) => handleOnCreateNote(values)}
