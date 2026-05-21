@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import css from "./App.module.css";
-import { createNote, fetchNotes } from "../../services/noteService";
+import { createNote, deleteNote, fetchNotes } from "../../services/noteService";
 import { useState } from "react";
 import SearchBox from "../SearchBox/SearchBox";
 import { useDebouncedCallback } from "use-debounce";
@@ -14,6 +14,8 @@ import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
 import type { NoteTag } from "../../types/note";
+import { error, success } from "../../notification/notification";
+import Loader from "../Loader/Loader";
 
 function App() {
   //States
@@ -21,32 +23,47 @@ function App() {
   const [page, setPage] = useState(1);
   const [isOpenModal, setIsOpenModal] = useState(false);
 
+  const queryClient = useQueryClient();
+
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
 
-  const { data, isSuccess } = useQuery({
+  //Search note
+  const { data, isSuccess, isLoading } = useQuery({
     queryKey: ["notes", searchQuery, page],
     queryFn: () => fetchNotes(searchQuery, page),
     placeholderData: keepPreviousData,
   });
 
-  // const mutation = useMutation({
-  //   mutationFn: (noteId: string) => deleteNote(noteId),
-  // });
+  const totalPages = data?.totalPages ?? 0;
 
-  const onClickDelete = () => {};
+  //To delete Note
+  const onClickDelete = (id: string) => {
+    mutationDelete.mutate(id);
+  };
+
+  const mutationDelete = useMutation({
+    mutationFn: (noteId: string) => deleteNote(noteId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["notes"] });
+      success("A note has been deleted!");
+    },
+  });
+  //
+
   const onChange = useDebouncedCallback((newSearchValue: string) => {
     setSearchQuery(newSearchValue);
   }, 300);
 
-  const totalPages = data?.totalPages ?? 0;
-  const queryClient = useQueryClient();
-
+  //To create Note
   const mutation = useMutation({
     mutationFn: (createdNote: NoteTag) => createNote(createdNote),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["notes"] });
+      closeModal();
+      success("A note has been created!");
     },
+    onError: () => error(),
   });
 
   const handleOnCreateNote = (value: NoteTag) => {
@@ -68,17 +85,20 @@ function App() {
         <button className={css.button} onClick={openModal}>
           Create note +
         </button>
+
         {isOpenModal && (
           <Modal>
             <NoteForm
               closeModal={closeModal}
               onCreateNote={(values) => handleOnCreateNote(values)}
+              isDisable={mutation.isPending}
             />
           </Modal>
         )}
       </header>
+      {isLoading && <Loader />}
       {data && data.notes.length > 0 && (
-        <NoteList onClick={onClickDelete} notes={data.notes} />
+        <NoteList onClick={(id) => onClickDelete(id)} notes={data.notes} />
       )}
     </div>
   );

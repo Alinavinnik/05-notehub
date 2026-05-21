@@ -3,7 +3,7 @@ import type { Note } from "../../types/note";
 
 interface NoteListProps {
   notes: Note[];
-  onClick: () => void;
+  onClick: (id: string) => void;
 }
 
 export default function NoteList({ notes, onClick }: NoteListProps) {
@@ -15,7 +15,7 @@ export default function NoteList({ notes, onClick }: NoteListProps) {
           <p className={css.content}>{note.content}</p>
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
-            <button className={css.button} onClick={onClick}>
+            <button className={css.button} onClick={() => onClick(note.id)}>
               Delete
             </button>
           </div>

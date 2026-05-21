@@ -30,6 +30,6 @@ export async function createNote(newNote: NoteTag) {
 
 //Delete request
 export async function deleteNote(id: string) {
-  const { data } = await apiClient.delete<Note>(`/notes${id}`);
+  const { data } = await apiClient.delete<Note>(`/notes/${id}`);
   return data;
 }

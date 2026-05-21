@@ -4,7 +4,7 @@ export interface Note {
   content: string;
   tag: string;
 }
-type TypeTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+export type TypeTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 
 export interface NoteTag {
   title: string;
