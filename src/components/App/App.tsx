@@ -29,7 +29,7 @@ function App() {
   const closeModal = () => setIsOpenModal(false);
 
   //Search note
-  const { data, isSuccess, isLoading } = useQuery({
+  const { data, isSuccess, isLoading, isError } = useQuery({
     queryKey: ["notes", searchQuery, page],
     queryFn: () => fetchNotes(searchQuery, page),
     placeholderData: keepPreviousData,
@@ -48,6 +48,7 @@ function App() {
       await queryClient.invalidateQueries({ queryKey: ["notes"] });
       success("A note has been deleted!");
     },
+    onError: () => error(),
   });
   //
 
@@ -96,6 +97,11 @@ function App() {
           </Modal>
         )}
       </header>
+      {isError && (
+        <p style={{ color: "#f61515" }}>
+          Somthing went wrong!Please reload your page
+        </p>
+      )}
       {isLoading && <Loader />}
       {data && data.notes.length > 0 && (
         <NoteList onClick={(id) => onClickDelete(id)} notes={data.notes} />
