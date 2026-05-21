@@ -1,20 +1,13 @@
 import NoteList from "../NoteList/NoteList";
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import css from "./App.module.css";
-import { createNote, deleteNote, fetchNotes } from "../../services/noteService";
+import { fetchNotes } from "../../services/noteService";
 import { useState } from "react";
 import SearchBox from "../SearchBox/SearchBox";
 import { useDebouncedCallback } from "use-debounce";
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
-import type { NewNote } from "../../types/note";
-import { error, success } from "../../notification/notification";
 import Loader from "../Loader/Loader";
 
 function App() {
@@ -22,8 +15,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [isOpenModal, setIsOpenModal] = useState(false);
-
-  const queryClient = useQueryClient();
 
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
